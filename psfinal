@@ -1,0 +1,491 @@
+#Q1))))
+
+#RREF - GAUSS JORDAN ELIMINATION
+
+"""
+
+# program to find the REF or RREF form of a given matrix
+m = int(input("Enter the number of rows : "))
+n = int(input("Enter the number of columns : "))
+
+matrix = list()
+temp = list()
+equation_type = 0
+
+zero_div_error = False
+
+# getting the matrix as input
+for i in range(m):
+    temp.clear()
+    for j in range(n):
+        temp.append(
+            float(input(f"Enter the element in row {i+1} | column {j+1} : ")))
+    matrix.append(temp.copy())
+    print("\n")
+
+lead = 0
+loop = True
+
+# finding the RREF form of the given matrix
+for r in range(m):
+    if lead >= n:
+        break
+    
+    i = r
+    while matrix[i][lead] == 0.0:
+        i += 1
+        if i == m:
+            i = r
+            lead += 1
+            if n == lead:
+                loop = False
+                break
+
+    if not loop:
+        break
+
+    matrix[i],matrix[r] = matrix[r],matrix[i]
+    first_val = matrix[r][lead]
+    matrix[r] = [x/float(first_val) for x in matrix[r]]
+    
+    for i in range(m):
+        if i != r:
+            first_val = matrix[i][lead]
+            matrix[i] = [y - first_val*x for x,y in zip(matrix[r],matrix[i])]
+    lead += 1
+
+rank = 0
+# displaying the matrix
+print("RREF form : ")
+for row in matrix:
+    if (sum(row) != 0.0):
+        rank += 1
+    print("\t".join(f"{x+0.0:.2f}" for x in row))
+print(f"\nRank = {rank}")
+
+"""
+ 
+#GAUSS JORDAN ELIMINATION
+ 
+"""
+# program to find the solution for a system of linear equations with a unique solution
+n = int(input("Enter the number of variables : "))
+eq = int(input("Enter the number of equations : "))
+
+if n == eq:
+    augmented_matrix = list()
+    temp = list()
+    equation_type = 0
+
+    zero_div_error = False
+
+    # getting the augmented matrix as input
+    for i in range(n):
+        temp.clear()
+        for j in range(n):
+            temp.append(float(input(f"Enter the coefficient of variable {j+1} in equation{i+1} : ")))
+        temp.append(float(input(f"Enter the output of equation {i+1} : ")))
+        augmented_matrix.append(temp.copy())
+        print("\n")
+
+    # converting the augmented matrix to REF or RREF form
+    for i in range(n):
+
+        # taking all the row(s) leading with zero(s) to last row(s)
+        if augmented_matrix[i][i] == 0.0:
+            c = 1
+            while ((i+c) < n and augmented_matrix[i+c][i] == 0):
+                c += 1
+
+            # this condition implies the case where we have row(s) with all zero entries
+            if (i+c == n):
+                equation_type = 1
+                break
+            for k in range(n+1):
+                augmented_matrix[i][k], augmented_matrix[i+c][k] = augmented_matrix[i+c][k], augmented_matrix[i][k]
+
+        # reducing the row
+        for j in range(n):
+            if i != j:
+                ratio = augmented_matrix[j][i] / augmented_matrix[i][i]
+
+                for k in range(n+1):
+                    augmented_matrix[j][k] = augmented_matrix[j][k] - ratio * augmented_matrix[i][k]
+
+    temp_sum = 0
+    j = 0
+
+    # finding the equation type
+    if (equation_type == 1):
+        equation_type = 3
+        for i in range(n):
+            sum = 0
+            while(j < n):
+                sum += augmented_matrix[i][j]
+                j+=1
+            if (sum == augmented_matrix[i][j+1]):
+                equation_type = 2
+
+    # checking the type of the equation
+    if equation_type == 2:
+        print("The equation has infinitely many solutions.")
+    elif equation_type == 3:
+        print("The equation has no solution.")
+    else:
+        for i in range(n):
+            print(f"variable {i+1} = {augmented_matrix[i][n]/augmented_matrix[i][i]}")
+
+else:
+    print("The equation has infinitely many solutions.")
+
+"""
+ 
+ 
+ 
+# Q2))))
+ 
+ 
+#GAUSS SEIDAL
+ 
+"""
+# program to find solution of linear system using Gauss-Seidel Method2
+n = int(input("Enter the number of equations or variables : "))
+error = float(input("Enter the error of tolerance : "))
+ 
+augmented_matrix = list()
+temp = list()
+ 
+# getting the equations in the form of an augmented matrix
+for i in range(n):
+    temp.clear()
+    for j in range(n):
+        temp.append(float(input(f"Enter the coefficient {j+1} of equation {i+1} : ")))
+    temp.append(float(input(f"Enter the result of equation {i+1} : ")))
+    augmented_matrix.append(temp.copy())
+ 
+# converting the augmented matrix to diagonally dominant form
+for i in range(n):
+    index = augmented_matrix[i].index(max(augmented_matrix[i][:n]))
+    if index != i:
+        augmented_matrix[i], augmented_matrix[index] = augmented_matrix[index], augmented_matrix[i]
+ 
+X = [0] * n
+prev_X = [0] * n
+condition = True
+isInvalid = False
+count = 0
+ 
+print('count\t{}'.format("\t".join(f"var{i}" for i in range(1,n+1))))
+# performing Gauss-Seidel method to find the unknowns
+while (condition):
+    for i in range(n):
+        sum = 0.0
+        c = 0
+ 
+        #condition where Gauss-Seidel method fails
+        if augmented_matrix[i][i] == 0.0:
+            print("Gauss-Seidel method fails for the given system.")
+            isInvalid = True
+            break
+ 
+        if isInvalid:
+            break
+ 
+        for j in range(n):
+            if i != j:
+                sum += augmented_matrix[i][j] * X[j]
+        X[i] = (augmented_matrix[i][n] - sum) / augmented_matrix[i][i]
+    count += 1
+    print('{}\t{}'.format(count, "\t".join(f"{x:.4f}" for x in X)))
+    for k in range(n):
+        if abs(prev_X[k]-X[i]) <= error:
+            condition = False
+    prev_X = X.copy()
+ 
+ 
+# Displaying the matrix
+print("\nResult : ")
+for i in range(n):
+    print(f"variable {i+1} = {X[i]}")
+"""
+ 
+ 
+ 
+#Q3)))))
+ 
+#GAUSS JACOBI
+ 
+"""
+# program to find solution of linear system using Gauss-Jacobi Method
+n = int(input("Enter the number of equations or variables : "))
+error = float(input("Enter the maximum error tolerance : "))
+ 
+augmented_matrix = list()
+temp = list()
+ 
+# getting the equations in the form of an augmented matrix
+for i in range(n):
+    temp.clear()
+    for j in range(n):
+        temp.append(
+            float(input(f"Enter the coefficient {j+1} of equation {i+1} : ")))
+    temp.append(float(input(f"Enter the result of equation {i+1} : ")))
+    augmented_matrix.append(temp.copy())
+ 
+# converting the augmented matrix to diagonally dominant form
+for i in range(n):
+    index = augmented_matrix[i].index(max(augmented_matrix[i][:n]))
+    if index != i:
+        augmented_matrix[i], augmented_matrix[index] = augmented_matrix[index], augmented_matrix[i]
+ 
+X = [0] * n
+X_ = list()
+condition = True
+isInvalid = False
+count = 0
+ 
+# performing Gauss-Jacobi method to find the unknowns
+print('count\t{}'.format("\t".join(f"var{i}" for i in range(1, n+1))))
+while condition:
+    X_.clear()
+    for i in range(n):
+        sum = 0.0
+        #condition where Gauss-Jacobi method fails
+        if augmented_matrix[i][i] == 0.0:
+            print("Gauss-Jacobi method fails for the given system.")
+            isInvalid = True
+            break
+ 
+        if isInvalid:
+            break
+ 
+        for j in range(n):
+            if i != j:
+                sum += augmented_matrix[i][j] * X[j]
+        X_.append((augmented_matrix[i][n] - sum) / augmented_matrix[i][i])
+ 
+    count += 1
+    print('{}\t{}'.format(count, "\t".join(f"{x:.4f}" for x in X)))
+    condition = False
+    for k in range(n):
+        if (abs(X[k]-X_[k]) > error):
+            condition = True
+    X = X_.copy()
+ 
+ 
+# Displaying the matrix
+print("\nResult : ")
+for i in range(n):
+    print(f"variable {i+1} = {X_[i]}")
+"""
+ 
+#Q4))))))))
+ 
+#EIGEN VALUES AND VECTORS
+ 
+""" import numpy as np
+from sympy import *
+import sympy as sp
+ 
+def eigenValues(matrix):
+  l = symbols('lambda')
+  order = len(matrix)
+  I = np.identity(order, dtype = int)
+  lI = I * l
+  expr = Matrix(lI - matrix).det()
+  eigValue = solve(expr)
+  return eigValue
+ 
+def eigenVectors(matrix, eigValues):
+  eigVectors = []
+  order = len(matrix)
+  I = np.identity(order, dtype = int)
+  zeros = np.zeros((order, 1), dtype = int)
+ 
+  for e in eigValues:
+    m = (e * I) - matrix
+    m = Matrix(m)
+    aug = m.rref()[0]
+    vec, params = aug.gauss_jordan_solve(Matrix([0] * order))
+    taus_ones = {tau:1 for tau in params}
+    vec = vec.xreplace(taus_ones)
+    eigVectors.append(np.array(vec))
+ 
+  # for i in range(len(eigValues)):
+  #   lcm = 1
+  #   denominators = [Fraction(x).denominator() for x in eigVectors[i].flatten()]
+  #   for j in denominators:
+  #     lcm = lcm * j // gcd(lcm, j)
+  #   eigVectors[i] = eigVectors[i] * lcm
+ 
+  return eigVectors
+ 
+ 
+matrix = np.array([[-5, 2], [-7,4]])
+ 
+eig_val = eigenValues(matrix)
+eig_vect = eigenVectors(matrix,eig_val)
+for i in eig_vect:
+  print(i)
+ 
+"""
+
+
+#power method
+
+"""
+arr = [[[2, 1], [0, -4]]]
+
+arr.append([[-5, 0, 0],
+            [3, 7, 0],
+            [4, -2, 3]])
+
+arr.append([[1, 2, -2],
+            [-2, 5, -2],
+            [-6, 6, -3]])
+
+arr = [np.array(i) for i in arr]
+for i in range(len(arr)):
+  n = len(arr[i])
+  eigenVector = np.array([[1]] * n)
+  for j in range(20):
+    eigenVector = np.matmul(arr[i], eigenVector)
+    eigenVector = np.round(eigenVector / max(eigenVector), 2)
+  eigenValue = round(sum(np.matmul(arr[i], eigenVector) * eigenVector)[0] / (sum(eigenVector * eigenVector)[0]), 2)
+  print(f'{i + 1}. Dominant Eigenvalue = {eigenValue}')
+  print(f'Dominant Eigenvector = \n{eigenVector}', end = '\n\n')
+
+"""
+
+#inverse power method 
+
+"""
+arr = np.zeros((3, 3, 3), dtype = 'int')
+
+arr[0] = [[2, 3, 1],
+          [0, -1, 2],
+          [0, 0, 3]]
+
+arr[1] = [[3, 0, 0],
+          [1, -1, 0],
+          [0, 2, 8]]
+
+arr[2] = [[1, 2, 0],
+          [0, -7, 1],
+          [0, 0, 0]]
+
+for i in range(len(arr)):
+  n = len(arr[i])
+  eigenVector = np.array([[1]] * n)
+  if np.linalg.det(arr[i]) != 0:
+    inv = np.linalg.inv(arr[i])
+  else:
+    continue
+  for j in range(20):
+    eigenVector = np.matmul(inv, eigenVector)
+    eigenVector = np.round(eigenVector / max(eigenVector), 2)
+  eigenValue = round(sum(np.matmul(inv, eigenVector) * eigenVector)[0] / (sum(eigenVector * eigenVector)[0]), 2)
+  print(f'{i + 1}. Smallest Eigenvalue = {eigenValue}')
+  print(f'Smallest Eigenvector = \n{eigenVector}', end = '\n\n')
+
+"""
+#Q5)))))))))
+ 
+#PROBLEM SHEET - 3 ALL METHODS
+ 
+"""
+x = symbols('x') 
+f = 3*x + cos(x) - x 
+limit = [-1, 0] 
+f2 = cos(x) - x * exp(x) 
+limit2 = [0, 1] 
+f3 = x**3 + 2 * x**2 + 10 * x - 20 
+limit3 = [1, 2] 
+ 
+"""
+ 
+#BISECTION METHOD
+ 
+"""
+def bisection(f, limit): 
+  a = limit[0] 
+  b = limit[1] 
+  t = 0.0 
+  t = float(a + b) / 2
+  while f.subs(x, t) > 0.00001 or f.subs(x, t) < -0.00001:
+       print("t =", t, "\nf(t) =", f.subs(x, t), end = "\n\n") 
+       if f.subs(x, t) * f.subs(x, a) < 0: 
+         b = t 
+       elif f.subs(x, t) * f.subs(x, b) < 0: 
+         a = t 
+       else: 
+         print("t NOT FOUND!") 
+         break 
+       t = float(a + b) / 2 
+  print("SOLUTION\nx = {x}\nf(x) = {fx}".format(x = t, fx = f.subs(x, t))) 
+bisection(f, limit)
+"""
+ 
+#REGULA FALSE METHOD
+ 
+"""
+def regula_false(f, limit): 
+  a = limit[0]
+  b = limit[1] 
+  if f.subs(x, a) < 0: 
+    pass 
+  else: 
+    temp = b 
+    b = a 
+    a = temp 
+  h = float(abs(f.subs(x, a)) * (b - a)) / float(abs(f.subs(x, a)) + abs(f.subs(x, b))) 
+  t = float(a + h) 
+  while f.subs(x, t) > 0.00001 or f.subs(x, t) < -0.00001: 
+    print("t =", t, "\nf(t) =", f.subs(x, t), end = "\n\n") 
+    if f.subs(x, t) < 0: 
+      a = t 
+    else: 
+      b = t 
+    h = float(abs(f.subs(x, a)) * (b - a))/float(abs(f.subs(x, a)) + abs(f.subs(x, b))) 
+    t = a + h 
+  print("SOLUTION\nx = {x}\nf(x) = {fx}".format(x = t, fx = f.subs(x, t))) 
+regula_false(f, limit) 
+"""
+ 
+#Newton Raphson Method
+ 
+"""
+def newton_raphson(f, limit): 
+  a = limit[0] 
+  b = limit[1] 
+  t = float(a + b) / 2 
+  while f.subs(x, t) > 0.001 or f.subs(x, t) < -0.001: 
+    print("t =", t, "\nf(t) =", f.subs(x, t), end = "\n\n") 
+    t = t - f.subs(x, t) / diff(f, x).subs(x, t) 
+  print("SOLUTION\nx = {x}\nf(x) = {fx}".format(x = t, fx = f.subs(x, t))) 
+newton_raphson(f, limit)
+"""
+ 
+#Fixed Point Iteration Method
+ 
+"""
+def fixed_point_iteration(f, limit): 
+  a = float(limit[0]) 
+  b = float(limit[1]) 
+  phi = -(f - f.coeff(x, 1) * x) / f.coeff(x, 1) 
+  if diff(phi, x).subs(x, a) < 1 and diff(phi, x).subs(x, b) < 1: 
+    pass 
+  else: 
+    print("Cannot use Fixed Point Iteration Method") 
+    return 
+  t = float(a) 
+  while f.subs(x, t) > 0.0001 or f.subs(x, t) < -0.0001: 
+    print("t =", t, "\nf(t) =", f.subs(x, t), end = "\n\n") 
+    t = phi.subs(x, t) 
+  print("SOLUTION\nx = {x}\nf(x) = {fx}".format(x = t, fx = f.subs(x, t)))
+ 
+fixed_point_iteration(f, limit)
+"""
+ 
+ 
+ 
